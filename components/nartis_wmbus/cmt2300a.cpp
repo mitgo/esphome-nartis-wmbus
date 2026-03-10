@@ -15,9 +15,9 @@ void CMT2300A::spi_write_byte_(uint8_t byte) {
   for (int8_t i = 7; i >= 0; i--) {
     this->pin_sclk_->digital_write(false);
     this->pin_sdio_->digital_write((byte >> i) & 1);
-    delayMicroseconds(2);
+    delayMicroseconds(1);
     this->pin_sclk_->digital_write(true);
-    delayMicroseconds(2);
+    delayMicroseconds(1);
   }
   this->pin_sclk_->digital_write(false);
 }
@@ -27,11 +27,11 @@ uint8_t CMT2300A::spi_read_byte_() {
   this->pin_sdio_->pin_mode(gpio::FLAG_INPUT);
   for (int8_t i = 7; i >= 0; i--) {
     this->pin_sclk_->digital_write(false);
-    delayMicroseconds(2);
+    delayMicroseconds(1);
     this->pin_sclk_->digital_write(true);
     if (this->pin_sdio_->digital_read())
       byte |= (1 << i);
-    delayMicroseconds(2);
+    delayMicroseconds(1);
   }
   this->pin_sclk_->digital_write(false);
   this->pin_sdio_->pin_mode(gpio::FLAG_OUTPUT);
@@ -40,20 +40,20 @@ uint8_t CMT2300A::spi_read_byte_() {
 
 void CMT2300A::write_reg(uint8_t addr, uint8_t value) {
   this->pin_csb_->digital_write(false);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   this->spi_write_byte_(addr & 0x7F);  // bit7 = 0 for write (per datasheet & firmware)
   this->spi_write_byte_(value);
   this->pin_csb_->digital_write(true);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
 }
 
 uint8_t CMT2300A::read_reg(uint8_t addr) {
   this->pin_csb_->digital_write(false);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   this->spi_write_byte_(addr | 0x80);  // bit7 = 1 for read (per datasheet & firmware)
   uint8_t value = this->spi_read_byte_();
   this->pin_csb_->digital_write(true);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   return value;
 }
 
@@ -65,33 +65,33 @@ void CMT2300A::write_bank(uint8_t start_reg, const uint8_t *data, uint8_t count)
 
 void CMT2300A::write_fifo(const uint8_t *data, uint16_t len) {
   this->pin_fcsb_->digital_write(false);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   for (uint16_t i = 0; i < len; i++) {
     this->spi_write_byte_(data[i]);
   }
   this->pin_fcsb_->digital_write(true);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
 }
 
 void CMT2300A::read_fifo(uint8_t *data, uint16_t len) {
   this->pin_fcsb_->digital_write(false);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   this->pin_sdio_->pin_mode(gpio::FLAG_INPUT);
   for (uint16_t i = 0; i < len; i++) {
     data[i] = 0;
     for (int8_t bit = 7; bit >= 0; bit--) {
       this->pin_sclk_->digital_write(false);
-      delayMicroseconds(2);
+      delayMicroseconds(1);
       this->pin_sclk_->digital_write(true);
       if (this->pin_sdio_->digital_read())
         data[i] |= (1 << bit);
-      delayMicroseconds(2);
+      delayMicroseconds(1);
     }
     this->pin_sclk_->digital_write(false);
   }
   this->pin_sdio_->pin_mode(gpio::FLAG_OUTPUT);
   this->pin_fcsb_->digital_write(true);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
 }
 
 // ============================================================================
@@ -441,7 +441,7 @@ bool CMT2300A::init(uint8_t channel) {
   ESP_LOGVV(TAG, "init: idle states set (CSB=1, FCSB=1, SCLK=0)");
 
   // Allow SPI interface to sync (firmware sends 10 clock pulses; delay is equivalent)
-  delay(10);
+  delay(1);
 
   if (this->pin_gpio1_ != nullptr) {
     ESP_LOGV(TAG, "init: GPIO1 pin provided, setting up as input");
@@ -455,10 +455,10 @@ bool CMT2300A::init(uint8_t channel) {
   // See firmware function 0x13C7C
   ESP_LOGV(TAG, "init: soft reset (writing 0xFF to CUS_SOFTRST)");
   this->write_reg(CMT2300A_CUS_SOFTRST, 0xFF);
-  delay(20);
+  delay(2);
   ESP_LOGV(TAG, "init: sending GO_STBY after reset");
   this->write_reg(CMT2300A_CUS_MODE_CTL, CMT2300A_GO_STBY);
-  delay(20);
+  delay(2);
 
   ESP_LOGV(TAG, "init: waiting for STBY mode...");
   if (!this->wait_for_mode_(CMT2300A_STA_STBY, 100)) {
