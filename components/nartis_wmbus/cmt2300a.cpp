@@ -40,20 +40,20 @@ uint8_t CMT2300A::spi_read_byte_() {
 
 void CMT2300A::write_reg(uint8_t addr, uint8_t value) {
   this->pin_csb_->digital_write(false);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
   this->spi_write_byte_(addr & 0x7F);  // bit7 = 0 for write (per datasheet & firmware)
   this->spi_write_byte_(value);
   this->pin_csb_->digital_write(true);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
 }
 
 uint8_t CMT2300A::read_reg(uint8_t addr) {
   this->pin_csb_->digital_write(false);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
   this->spi_write_byte_(addr | 0x80);  // bit7 = 1 for read (per datasheet & firmware)
   uint8_t value = this->spi_read_byte_();
   this->pin_csb_->digital_write(true);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
   return value;
 }
 
