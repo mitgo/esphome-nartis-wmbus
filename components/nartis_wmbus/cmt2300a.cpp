@@ -455,10 +455,10 @@ bool CMT2300A::init(uint8_t channel) {
   // See firmware function 0x13C7C
   ESP_LOGV(TAG, "init: soft reset (writing 0xFF to CUS_SOFTRST)");
   this->write_reg(CMT2300A_CUS_SOFTRST, 0xFF);
-  delay(10);
+  delay(20);
   ESP_LOGV(TAG, "init: sending GO_STBY after reset");
   this->write_reg(CMT2300A_CUS_MODE_CTL, CMT2300A_GO_STBY);
-  delay(10);
+  delay(20);
 
   ESP_LOGV(TAG, "init: waiting for STBY mode...");
   if (!this->wait_for_mode_(CMT2300A_STA_STBY, 100)) {
