@@ -15,9 +15,9 @@ void CMT2300A::spi_write_byte_(uint8_t byte) {
   for (int8_t i = 7; i >= 0; i--) {
     this->pin_sclk_->digital_write(false);
     this->pin_sdio_->digital_write((byte >> i) & 1);
-    delayMicroseconds(1);
+    delayMicroseconds(2);
     this->pin_sclk_->digital_write(true);
-    delayMicroseconds(1);
+    delayMicroseconds(2);
   }
   this->pin_sclk_->digital_write(false);
 }
@@ -27,11 +27,11 @@ uint8_t CMT2300A::spi_read_byte_() {
   this->pin_sdio_->pin_mode(gpio::FLAG_INPUT);
   for (int8_t i = 7; i >= 0; i--) {
     this->pin_sclk_->digital_write(false);
-    delayMicroseconds(1);
+    delayMicroseconds(2);
     this->pin_sclk_->digital_write(true);
     if (this->pin_sdio_->digital_read())
       byte |= (1 << i);
-    delayMicroseconds(1);
+    delayMicroseconds(2);
   }
   this->pin_sclk_->digital_write(false);
   this->pin_sdio_->pin_mode(gpio::FLAG_OUTPUT);
