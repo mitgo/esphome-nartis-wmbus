@@ -489,7 +489,7 @@ bool CMT2300A::init(uint8_t channel) {
   this->clear_fifo_();
 
   // Verify chip: read back a known register
-  uint8_t check = this->read_reg(CMT2300A_CUS_CMT1);
+  uint8_t check = this->read_reg(CMT2300A_CUS_CMT2);
   ESP_LOGV(TAG, "init: chip verify — CUS_CMT1(reg 0x00) = 0x%02X", check);
   if (check == 0xFF || check == 0x00) {
     ESP_LOGE(TAG, "CMT2300A not responding (read 0x%02X from reg 0x00) — check SPI wiring!", check);
