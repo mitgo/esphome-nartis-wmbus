@@ -65,33 +65,33 @@ void CMT2300A::write_bank(uint8_t start_reg, const uint8_t *data, uint8_t count)
 
 void CMT2300A::write_fifo(const uint8_t *data, uint16_t len) {
   this->pin_fcsb_->digital_write(false);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
   for (uint16_t i = 0; i < len; i++) {
     this->spi_write_byte_(data[i]);
   }
   this->pin_fcsb_->digital_write(true);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
 }
 
 void CMT2300A::read_fifo(uint8_t *data, uint16_t len) {
   this->pin_fcsb_->digital_write(false);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
   this->pin_sdio_->pin_mode(gpio::FLAG_INPUT);
   for (uint16_t i = 0; i < len; i++) {
     data[i] = 0;
     for (int8_t bit = 7; bit >= 0; bit--) {
       this->pin_sclk_->digital_write(false);
-      delayMicroseconds(1);
+      delayMicroseconds(2);
       this->pin_sclk_->digital_write(true);
       if (this->pin_sdio_->digital_read())
         data[i] |= (1 << bit);
-      delayMicroseconds(1);
+      delayMicroseconds(2);
     }
     this->pin_sclk_->digital_write(false);
   }
   this->pin_sdio_->pin_mode(gpio::FLAG_OUTPUT);
   this->pin_fcsb_->digital_write(true);
-  delayMicroseconds(1);
+  delayMicroseconds(2);
 }
 
 // ============================================================================
@@ -441,7 +441,7 @@ bool CMT2300A::init(uint8_t channel) {
   ESP_LOGVV(TAG, "init: idle states set (CSB=1, FCSB=1, SCLK=0)");
 
   // Allow SPI interface to sync (firmware sends 10 clock pulses; delay is equivalent)
-  delay(1);
+  delay(10);
 
   if (this->pin_gpio1_ != nullptr) {
     ESP_LOGV(TAG, "init: GPIO1 pin provided, setting up as input");
